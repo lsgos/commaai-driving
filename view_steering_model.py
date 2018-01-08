@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import pdb
 import argparse
 import sys
 import numpy as np
@@ -6,13 +7,11 @@ import h5py
 import pygame
 import json
 from keras.models import model_from_json
+from matplotlib import pyplot as plt
+from matplotlib import animation as ani
 
-pygame.init()
-size = (320*2, 160*2)
-pygame.display.set_caption("comma.ai data viewer")
-screen = pygame.display.set_mode(size, pygame.DOUBLEBUF)
+from load_steering_model import define_model
 
-camera_surface = pygame.surface.Surface((320,160),0,24).convert()
 
 # ***** get perspective transform for images *****
 from skimage import transform as tf
@@ -50,9 +49,13 @@ def perspective_tform(x, y):
 # ***** functions to draw lines *****
 def draw_pt(img, x, y, color, sz=1):
   row, col = perspective_tform(x, y)
+  def rnd(x):
+    # pretty sure that this used to be OK in numpy, but now only integer indices are allowed
+    return int(round(x))
+  
   if row >= 0 and row < img.shape[0] and\
      col >= 0 and col < img.shape[1]:
-    img[row-sz:row+sz, col-sz:col+sz] = color
+    img[rnd(row-sz):rnd(row+sz),rnd(col-sz):rnd(col+sz)] = color
 
 def draw_path(img, path_x, path_y, color):
   for x, y in zip(path_x, path_y):
@@ -90,8 +93,7 @@ if __name__ == "__main__":
   parser.add_argument('--dataset', type=str, default="2016-06-08--11-46-01", help='Dataset/video clip name')
   args = parser.parse_args()
 
-  with open(args.model, 'r') as jfile:
-    model = model_from_json(json.load(jfile))
+  model = define_model()
 
   model.compile("sgd", "mse")
   weights_file = args.model.replace('json', 'keras')
@@ -99,6 +101,7 @@ if __name__ == "__main__":
 
   # default dataset is the validation data on the highway
   dataset = args.dataset
+  # skip to highway.
   skip = 300
 
   log = h5py.File("dataset/log/"+dataset+".h5", "r")
@@ -106,22 +109,47 @@ if __name__ == "__main__":
 
   print log.keys()
 
-  # skip to highway
-  for i in range(skip*100, log['times'].shape[0]):
-    if i%100 == 0:
-      print "%.2f seconds elapsed" % (i/100.0)
-    img = cam['X'][log['cam1_ptr'][i]].swapaxes(0,2).swapaxes(0,1)
+  
+  #some statistics to print
+  running_mse = 0.0
+  running_avg_error = 0.0 #check for bias
+  largest_abs_error = 0
+  n = 1
+  #the original code used pygame to draw the video, but I've found this to be unsatisfactory
+  def update_image(index,pic):
+    global n
+    global running_mse
+    global running_avg_error
+    global largest_abs_error
+    img = cam['X'][log['cam1_ptr'][]].swapaxes(0,2).swapaxes(0,1)
 
     predicted_steers = model.predict(img[None, :, :, :].transpose(0, 3, 1, 2))[0][0]
 
-    angle_steers = log['steering_angle'][i]
-    speed_ms = log['speed'][i]
-
+    angle_steers = log['steering_angle'][]
+    speed_ms = log['speed'][]
     draw_path_on(img, speed_ms, -angle_steers/10.0)
     draw_path_on(img, speed_ms, -predicted_steers/10.0, (0, 255, 0))
+    pic.set_data(img)
 
-    # draw on
-    pygame.surfarray.blit_array(camera_surface, img.swapaxes(0,1))
-    camera_surface_2x = pygame.transform.scale2x(camera_surface)
-    screen.blit(camera_surface_2x, (0,0))
-    pygame.display.flip()
+    psa = predicted_steers / 10 #predicted steering angle
+    gtsa = angle_steers / 10    #ground truth steering angle 
+    
+    n +=1
+    running_mse += ((psa - gtsa) ** 2 - running_mse)/n
+    running_avg_error += ((psa - gtsa) - running_avg_error) / n
+    abs_error = np.abs(psa - gtsa)
+    largest_abs_error = abs_error if abs_error > largest_abs_error else largest_abs_error
+    
+    if %100 == 0:
+      print "%.2f seconds elapsed" % (/100.0)
+      print("predicted steer: {}, actual steer: {}, error: {}".format(psa,
+                                                                      gtsa,
+                                                                      gtsa - psa))
+      print("Avg MSE: {}, Avg Error: {}, Largest Abs Error: {}".format(running_mse, running_avg_error, largest_abs_error))
+    return pic, 
+
+  fig = plt.figure()
+  pic = plt.imshow(cam['X'][0].swapaxes(0,2).swapaxes(0,1))
+
+  mov = ani.FuncAnimation(fig, update_image,  range(skip * 100, log['times'].shape[0]),interval=20, fargs=(pic,))
+  plt.show()
