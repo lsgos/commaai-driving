@@ -121,12 +121,12 @@ if __name__ == "__main__":
     global running_mse
     global running_avg_error
     global largest_abs_error
-    img = cam['X'][log['cam1_ptr'][]].swapaxes(0,2).swapaxes(0,1)
+    img = cam['X'][log['cam1_ptr'][index]].swapaxes(0,2).swapaxes(0,1)
 
     predicted_steers = model.predict(img[None, :, :, :].transpose(0, 3, 1, 2))[0][0]
 
-    angle_steers = log['steering_angle'][]
-    speed_ms = log['speed'][]
+    angle_steers = log['steering_angle'][index]
+    speed_ms = log['speed'][index]
     draw_path_on(img, speed_ms, -angle_steers/10.0)
     draw_path_on(img, speed_ms, -predicted_steers/10.0, (0, 255, 0))
     pic.set_data(img)
@@ -140,8 +140,8 @@ if __name__ == "__main__":
     abs_error = np.abs(psa - gtsa)
     largest_abs_error = abs_error if abs_error > largest_abs_error else largest_abs_error
     
-    if %100 == 0:
-      print "%.2f seconds elapsed" % (/100.0)
+    if index %100 == 0:
+      print "%.2f seconds elapsed" % (index /100.0)
       print("predicted steer: {}, actual steer: {}, error: {}".format(psa,
                                                                       gtsa,
                                                                       gtsa - psa))
