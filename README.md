@@ -1,5 +1,8 @@
 # the people's comma
 
+This is just a fork of [this repository](https://github.com/commaai/research)
+for me to keep fixes I applied to get it to work with keras 2.
+
 ## the paper
 
 [Learning a Driving Simulator](http://arxiv.org/abs/1608.01230)
