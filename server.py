@@ -185,21 +185,21 @@ if __name__ == "__main__":
 
   # 9 for training
   train_path = [
-    './dataset/camera/2016-01-30--11-24-51.h5',
-    './dataset/camera/2016-01-30--13-46-00.h5',
-    './dataset/camera/2016-01-31--19-19-25.h5',
-    './dataset/camera/2016-02-02--10-16-58.h5',
-    './dataset/camera/2016-02-08--14-56-28.h5',
-    './dataset/camera/2016-02-11--21-32-47.h5',
-    './dataset/camera/2016-03-29--10-50-20.h5',
-    './dataset/camera/2016-04-21--14-48-08.h5',
-    './dataset/camera/2016-05-12--22-20-00.h5',
+    '/data-local/lsgs/commai-dataset/dataset/camera/2016-01-30--11-24-51.h5',
+    '/data-local/lsgs/commai-dataset/dataset/camera/2016-01-30--13-46-00.h5',
+    '/data-local/lsgs/commai-dataset/dataset/camera/2016-01-31--19-19-25.h5',
+    '/data-local/lsgs/commai-dataset/dataset/camera/2016-02-02--10-16-58.h5',
+    '/data-local/lsgs/commai-dataset/dataset/camera/2016-02-08--14-56-28.h5',
+    '/data-local/lsgs/commai-dataset/dataset/camera/2016-02-11--21-32-47.h5',
+    '/data-local/lsgs/commai-dataset/dataset/camera/2016-03-29--10-50-20.h5',
+    '/data-local/lsgs/commai-dataset/dataset/camera/2016-04-21--14-48-08.h5',
+    '/data-local/lsgs/commai-dataset/dataset/camera/2016-05-12--22-20-00.h5',
   ]
 
   # 2 for validation
   validation_path = [
-    './dataset/camera/2016-06-02--21-39-29.h5',
-    './dataset/camera/2016-06-08--11-46-01.h5'
+    '/data-local/lsgs/commai-dataset/dataset/camera/2016-06-02--21-39-29.h5',
+    '/data-local/lsgs/commai-dataset/dataset/camera/2016-06-08--11-46-01.h5'
   ]
 
   if args.validation:

@@ -8,7 +8,7 @@ import json
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten, Lambda, ELU
 from keras.layers.convolutional import Convolution2D
-
+from keras import backend as K
 from server import client_generator
 
 
@@ -22,6 +22,7 @@ def gen(hwm, host, port):
 
 
 def get_model(time_len=1):
+  K.set_image_data_format('channels_first') #this has been changed since this code was written
   ch, row, col = 3, 160, 320  # camera format
 
   model = Sequential()
@@ -60,6 +61,8 @@ if __name__ == "__main__":
   args = parser.parse_args()
 
   model = get_model()
+  if os.path.exists('./outputs/steering_model'):
+      model.load_weights('./outputs/steering_model/steering_angle.keras')
   model.fit_generator(
     gen(20, args.host, port=args.port),
     samples_per_epoch=10000,
@@ -72,6 +75,6 @@ if __name__ == "__main__":
   if not os.path.exists("./outputs/steering_model"):
       os.makedirs("./outputs/steering_model")
 
-  model.save_weights("./outputs/steering_model/steering_angle.keras", True)
+  model.save_weights("./outputs/steering_model/steering_angle_new.keras", True)
   with open('./outputs/steering_model/steering_angle.json', 'w') as outfile:
     json.dump(model.to_json(), outfile)
