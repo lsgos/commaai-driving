@@ -78,8 +78,10 @@ if __name__ == "__main__":
   args = parser.parse_args()
   if args.use_linear:
       args.use_previous=False
-
-  model = get_model()
+  if args.use_linear: 
+    model = get_linear_model()
+  else:
+    model = get_model()
   if os.path.exists('./outputs/steering_model') and args.use_previous:
       model.load_weights('./outputs/steering_model/steering_angle.keras')
   model.fit_generator(

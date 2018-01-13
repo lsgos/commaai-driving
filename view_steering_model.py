@@ -10,7 +10,7 @@ from keras.models import model_from_json
 from matplotlib import pyplot as plt
 from matplotlib import animation as ani
 
-from load_steering_model import define_model
+from load_steering_model import define_linear_model, define_model
 
 
 # ***** get perspective transform for images *****
@@ -89,15 +89,19 @@ def draw_path_on(img, speed_ms, angle_steers, color=(0,0,255)):
 # ***** main loop *****
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='Path viewer')
-  parser.add_argument('model', type=str, help='Path to model definition json. Model weights should be on the same path.')
+  parser.add_argument('model', type=str, help='Path to model weights')
   parser.add_argument('--dataset', type=str, default="2016-06-08--11-46-01", help='Dataset/video clip name')
+  parser.add_argument('--use_linear', type=bool, default=False)
   args = parser.parse_args()
 
-  model = define_model()
+  if args.use_linear:
+    model = define_linear_model()
+  else:
+    model = define_model()
+  model.load_weights(args.model)
+
 
   model.compile("sgd", "mse")
-  weights_file = args.model.replace('json', 'keras')
-  model.load_weights(weights_file)
 
   # default dataset is the validation data on the highway
   dataset = args.dataset
