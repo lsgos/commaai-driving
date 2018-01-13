@@ -59,7 +59,7 @@ def get_linear_model(time_len=1):
             input_shape=(ch, row, col),
             output_shape=(ch, row, col)))
     model.add(Flatten())   
-    model.add(Dense(1), kernel_regularizer=keras.regularizers.l2(weight_decay))
+    model.add(Dense(1, kernel_regularizer=keras.regularizers.l2(weight_decay)))
     return model
 
 if __name__ == "__main__":
